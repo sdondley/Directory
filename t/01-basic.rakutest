@@ -1,0 +1,6 @@
+use Test;
+use Directory;
+
+pass "replace me";
+
+done-testing;

@@ -1,0 +1,5 @@
+.precomp/
+/Directory-*
+*.iml
+*.idea
+

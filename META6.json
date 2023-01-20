@@ -1,0 +1,20 @@
+{
+   "depends" : [],
+   "perl" : "6.d",
+   "tags" : [],
+   "license" : "Artistic-2.0",
+   "authors" : [
+      "Steve Dondley"
+   ],
+   "build-depends" : [],
+   "resources" : [],
+   "auth" : "zef:sdondley",
+   "test-depends" : [],
+   "name" : "Directory",
+   "version" : "0.0.1",
+   "description" : "blah blah blah",
+   "provides" : {
+      "Directory" : "lib/Directory.rakumod"
+   },
+   "source-url" : "https://github.com/sdondley/Directory.git"
+}
