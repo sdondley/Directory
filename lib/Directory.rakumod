@@ -49,7 +49,7 @@ class Directory is IO::Dir {
         return $empty;
     }
 
-    method read() {
+    method list() {
         my @entries;
         self.open: $.path;
         @entries.push: self.dir(:Str).Slip;
@@ -96,7 +96,7 @@ my $dir = Directory.new();   # current working directory, '.'
 # METHODS
 my $bool = Directory.new('/some/dir').exists;
 my $bool = Directory.new('/some/dir').is-empty;
-my @entries = Directory.new('/some/dir').read;
+my @entries = Directory.new('/some/dir').list;
 my $bool = Directory.new('/some/dir').mktree;
 my $bool = Directory.new('/some/dir').create;
 my $bool = Directory.new('/some/dir').rmtree;
@@ -133,7 +133,7 @@ Returns a boolean value of C<True> if the directory exists, C<False> otherwise.
 
 Returns a boolean value of C<True> if the directory is empty, C<False> otherwise.
 
-=head2 read
+=head2 list
 
 Returns an array of strings for each file and directory in the
 Directory object's path.
