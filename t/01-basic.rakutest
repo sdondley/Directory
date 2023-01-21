@@ -24,12 +24,13 @@ is $dir.exists, False, 'detects deleted directory';
 $dir = Directory.new('~');
 if $*HOME {
     is $dir.path.Str, $*HOME, 'interprets leading tilde as home directory';
-} else {
-    skip 'No $*HOME', 1;
-}
 
-$dir = Directory.new('~/.');
-is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
+    $dir = Directory.new('~/.');
+    is $dir.path.Str, $*HOME ~ '/.',
+    'interprets leading tilde followed by slash correctly';
+} else {
+    skip 'No $*HOME', 2;
+}
 
 $*HOME = '';
 dies-ok { $dir = Directory.new('~') }, 'dies when $HOME not set';
