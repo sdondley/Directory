@@ -20,12 +20,16 @@ is $dir.rmtree, True, 'deletes directory';
 is $dir.exists, False, 'detects deleted directory';
 
 $dir = Directory.new('~');
-is $dir.path.Str, %*ENV<HOME>, 'interprets leading tilde as home directory';
+if $*HOME {
+    is $dir.path.Str, $*HOME, 'interprets leading tilde as home directory';
+} else {
+    skip 'No $*HOME', 1;
+}
 
 $dir = Directory.new('~/.');
-is $dir.path.Str, %*ENV<HOME> ~ '/.', 'interprets leading tilde followed by slash correctly';
+is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
 
-%*ENV<HOME> = '';
+$*HOME = '';
 dies-ok { $dir = Directory.new('~') }, 'dies when $HOME not set';
 
 

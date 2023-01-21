@@ -10,7 +10,7 @@ class X::Directory::FileExists is Exception {
 class X::Directory::NoHome is Exception {
     has IO::Path $.path;
     method message() {
-        "The '~' was used in the path but no \$HOME environment variable exists.";
+        "The '~' was used in the path but \$*HOME variable is not set.";
     }
 }
 
@@ -52,8 +52,8 @@ class Directory is IO::Dir {
 
     submethod BUILD(:$path is copy) {
         if ($path.Str eq '~' || $path.Str.substr(0, 2) eq '~/') {
-            die (X::Directory::NoHome.new(:$path)) if !%*ENV<HOME>;
-            my $home = %*ENV<HOME>;
+            die (X::Directory::NoHome.new(:$path)) if !$*HOME;
+            my $home = $*HOME;
             $path = $path.Str.subst('~', $home).IO;
         }
         $!path = $path;
@@ -112,7 +112,7 @@ The module aims to make working with directories very simple.
 Creates a new Directory object from the C<$path> supplied or with the path to the
 current working directory if no C<$path> is given.  An error is thrown
 if a file already exists at the C<$path>. A path beginning with the C<~> character
-is replaced with the value of the C<%*ENV<HOME\>> environment variable.
+is replaced with the value of the C<$*HOME>> variable.
 
 =head1 METHODS
 
