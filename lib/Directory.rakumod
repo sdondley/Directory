@@ -42,6 +42,13 @@ class Directory is IO::Dir {
         empty-directory($!path);
     }
 
+    method is-empty() {
+        self.open: $.path;
+        my $empty = !self.dir;
+        self.close;
+        return $empty;
+    }
+
     method read() {
         my @entries;
         self.open: $.path;
@@ -88,6 +95,7 @@ my $dir = Directory.new();   # current working directory, '.'
 
 # METHODS
 my $bool = Directory.new('/some/dir').exists;
+my $bool = Directory.new('/some/dir').is-empty;
 my @entries = Directory.new('/some/dir').read;
 my $bool = Directory.new('/some/dir').mktree;
 my $bool = Directory.new('/some/dir').create;
@@ -119,6 +127,10 @@ is replaced with the value of the C<$*HOME>> variable.
 =head2 exists
 
 Returns a boolean value of C<True> if the directory exists, C<False> otherwise.
+
+=head2 is-empty
+
+Returns a boolean value of C<True> if the directory is empty, C<False> otherwise.
 
 =head2 read
 
