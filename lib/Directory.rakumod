@@ -3,8 +3,7 @@ use File::Directory::Tree;
 class X::Directory::FileExists is Exception {
     has IO::Path $.path;
     method message() {
-        "Cannot create a Directory object. A file already exists at '" ~ $!path
-                .Str ~ "'.";
+        "Cannot create a Directory object. A file already exists at '" ~ $!path.Str ~ "'.";
     }
 }
 
