@@ -1,6 +1,8 @@
 Revision history for Directory
 
 {{$NEXT}}
+
+0.0.2  2023-01-21T10:10:09-05:00
     - add create method
 
 0.0.1  2023-01-21T08:21:40-05:00
