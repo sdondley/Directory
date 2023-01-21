@@ -1,7 +1,7 @@
 use Test;
 use Directory;
 
-plan 13;
+plan 14;
 
 my $dir;
 lives-ok { $dir = Directory.new('t') }, 'creates object';
@@ -13,6 +13,7 @@ dies-ok { Directory.new('t/01-basic.rakutest') }, 'dies when file exists';
 
 $dir = Directory.new('t/test-dir');
 is $dir.mktree, True, 'creates directory';
+is $dir.create, True, 'creates directory';
 is $dir.exists, True, 'detects that directory exists';
 is $dir.empty-directory, True, 'can empty a directory';
 is $dir.rmtree, True, 'deletes directory';

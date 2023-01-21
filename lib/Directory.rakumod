@@ -30,6 +30,10 @@ class Directory is IO::Dir {
         mktree($!path, :$mask);
     }
 
+    method create(Int:D $mask = 0o777) {
+        self.mktree(:$mask)
+    }
+
     method rmtree() {
         rmtree($!path);
     }
@@ -86,6 +90,7 @@ my $dir = Directory.new();   # current working directory, '.'
 my $bool = Directory.new('/some/dir').exists;
 my @entries = Directory.new('/some/dir').read;
 my $bool = Directory.new('/some/dir').mktree;
+my $bool = Directory.new('/some/dir').create;
 my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
@@ -135,6 +140,10 @@ Closes the Directory object with the C<close> method from C<IO::Dir>
 =head2 mktree($mask = 0o777)
 
 A wrapper for the L<File::Directory::Tree>'s mktree command.
+
+=head2 create($mask = 0o777)
+
+Synonym for C<mktree> method.
 
 =head2 rmtree
 
