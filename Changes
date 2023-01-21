@@ -1,6 +1,8 @@
 Revision history for Directory
 
 {{$NEXT}}
+    - add is-empty method
+    - detect home dir on Windows
 
 0.0.2  2023-01-21T10:10:09-05:00
     - add create method
