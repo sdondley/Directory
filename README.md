@@ -20,6 +20,7 @@ my $dir = Directory.new();   # current working directory, '.'
 my $bool = Directory.new('/some/dir').exists;
 my @entries = Directory.new('/some/dir').read;
 my $bool = Directory.new('/some/dir').mktree;
+my $bool = Directory.new('/some/dir').create;
 my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
@@ -72,6 +73,11 @@ mktree($mask = 0o777)
 ---------------------
 
 A wrapper for the [File::Directory::Tree](File::Directory::Tree)'s mktree command.
+
+create($mask = 0o777)
+---------------------
+
+Synonym for `mktree` method.
 
 rmtree
 ------
