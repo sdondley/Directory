@@ -47,7 +47,7 @@ class Directory is IO::Dir {
 
     # object construction
     method new(Str:D $path?) {
-        $path ?? self.bless(path => $path>IO) !! self.bless(path => $*CWD);
+        $path ?? self.bless(path => $path.IO) !! self.bless(path => $*CWD);
     }
 
     submethod BUILD(:$path is copy) {
@@ -58,9 +58,6 @@ class Directory is IO::Dir {
         }
         $!path = $path;
     }
-
-
-
 }
 
 =begin pod
@@ -89,8 +86,9 @@ my $bool = Directory.new('/some/dir').create;
 my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
-Directory.new('/some/dir').open;
-Directory.new('/some/dir').open.close;
+my $dir = Directory.new('/some/dir').open;
+$dir.dir;
+$dir.close;
 
 =end code
 
@@ -112,44 +110,56 @@ is replaced with the value of the C<$*HOME>> variable.
 
 =head1 METHODS
 
-=head2 exists
+=head2 Built-in methods
+
+=head3 exists
 
 Returns a boolean value of C<True> if the directory exists, C<False> otherwise.
 
-=head2 is-empty
+=head3 is-empty
 
 Returns a boolean value of C<True> if the directory is empty, C<False> otherwise.
 
-=head2 list
+=head3 list
 
 Returns an array of strings for each file and directory in the
 Directory object's path.
 
-=head2 path
+=head3 path
 
 Returns the IO::Path object for the Directory object.
 
-=head2 open
+=head2 C<IO::Dir> methods
+
+=head3 open
 
 Opens the Directory object with the C<open> method from C<IO::Dir>
 
-=head2 close
+=head3 dir
+
+Runs the C<dir> method from C<IO::Dir>, returning a sequence of IO paths for
+files and directories contained by the Directory object. The Directory object must
+be opened before running this method.
+
+=head3 close
 
 Closes the Directory object with the C<close> method from C<IO::Dir>
 
-=head2 mktree($mask = 0o777)
+=head2 C<File::Directory::Tree Wrapper> methods
+
+=head3 mktree($mask = 0o777)
 
 A wrapper for the L<File::Directory::Tree>'s mktree command.
 
-=head2 create($mask = 0o777)
+=head3 create($mask = 0o777)
 
 Synonym for C<mktree> method.
 
-=head2 rmtree
+=head3 rmtree
 
 A wrapper for the L<File::Directory::Tree>'s rmtree command.
 
-=head2 empty-directory
+=head3 empty-directory
 
 A wrapper for the L<File::Directory::Tree>'s empty-directory command.
 
