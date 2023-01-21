@@ -1,6 +1,31 @@
 use Test;
 use Directory;
 
-pass "replace me";
+plan 13;
+
+my $dir;
+lives-ok { $dir = Directory.new('t') }, 'creates object';
+lives-ok { $dir.read; }, 'can read a directory';
+is $dir.exists, True, 'determines if directory exists';
+$dir = Directory.new('kjkjekjad');
+is $dir.exists, False, 'determined if directory does not exist';
+dies-ok { Directory.new('t/01-basic.rakutest') }, 'dies when file exists';
+
+$dir = Directory.new('t/test-dir');
+is $dir.mktree, True, 'creates directory';
+is $dir.exists, True, 'detects that directory exists';
+is $dir.empty-directory, True, 'can empty a directory';
+is $dir.rmtree, True, 'deletes directory';
+is $dir.exists, False, 'detects deleted directory';
+
+$dir = Directory.new('~');
+is $dir.path.Str, %*ENV<HOME>, 'interprets leading tilde as home directory';
+
+$dir = Directory.new('~/.');
+is $dir.path.Str, %*ENV<HOME> ~ '/.', 'interprets leading tilde followed by slash correctly';
+
+%*ENV<HOME> = '';
+dies-ok { $dir = Directory.new('~') }, 'dies when $HOME not set';
+
 
 done-testing;
