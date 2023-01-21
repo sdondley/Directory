@@ -89,7 +89,7 @@ Directory - an object representing a directory
 use Directory;
 
 # OBJECT CONSTRUCTION
-my $dir = Directory.new('/home/user/dir');
+my $dir = Directory.new('/some/dir'); # relative paths OK, too
 my $dir = Directory.new('~');
 my $dir = Directory.new();   # current working directory, '.'
 
@@ -111,7 +111,8 @@ Directory.new('/some/dir').open.close;
 
 A Directory object is a subclass of an IO::Dir object and also wraps
 the subroutines found in the File::Tree::Directory distribution with methods.
-The module aims to make working with directories very simple.
+The module aims to make working with directories simpler. The primary motivation
+was for type constraining class attributes representing directories.
 
 =head1 CONSTRUCTION
 
