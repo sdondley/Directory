@@ -16,31 +16,16 @@ class X::Directory::NoHome is Exception {
 
 class Directory is IO::Dir {
     has IO::Path $.path is required where dir-check($_);
-
     sub dir-check(IO::Path:D $path is copy) {
         die (X::Directory::FileExists.new(:$path)) if $path.f.Bool;
         return True;
     }
 
-    method exists() {
-        $!path.e;
-    }
-
-    method mktree(Int:D $mask = 0o777) {
-        mktree($!path, :$mask);
-    }
-
-    method create(Int:D $mask = 0o777) {
-        self.mktree(:$mask)
-    }
-
-    method rmtree() {
-        rmtree($!path);
-    }
-
-    method empty-directory() {
-        empty-directory($!path);
-    }
+    method exists() { $!path.e; }
+    method mktree(Int:D $mask = 0o777) { mktree($!path, :$mask); }
+    method create(Int:D $mask = 0o777) { self.mktree(:$mask) }
+    method rmtree() { rmtree($!path); }
+    method empty-directory() { empty-directory($!path); }
 
     method is-empty() {
         self.open: $.path;
@@ -57,6 +42,10 @@ class Directory is IO::Dir {
         return @entries;
     }
 
+    method new(Str:D $path?) {
+        $path ?? self.bless(path => $path>IO) !! self.bless(path => $*CWD);
+    }
+
     submethod BUILD(:$path is copy) {
         if ($path.Str eq '~' || $path.Str.substr(0, 2) eq '~/') {
             die (X::Directory::NoHome.new(:$path)) if !$*HOME;
@@ -66,13 +55,7 @@ class Directory is IO::Dir {
         $!path = $path;
     }
 
-    method new(Str:D $path?) {
-        if ($path) {
-            self.bless(path => $path.IO);
-        } else {
-            self.bless(path => $*CWD);
-        }
-    }
+
 
 }
 
