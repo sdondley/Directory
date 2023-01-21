@@ -18,6 +18,7 @@ my $dir = Directory.new();   # current working directory, '.'
 
 # METHODS
 my $bool = Directory.new('/some/dir').exists;
+my $bool = Directory.new('/some/dir').is-empty;
 my @entries = Directory.new('/some/dir').read;
 my $bool = Directory.new('/some/dir').mktree;
 my $bool = Directory.new('/some/dir').create;
@@ -39,7 +40,7 @@ CONSTRUCTION
 new(Str:D $path?)
 -----------------
 
-Creates a new Directory object from the `$path` supplied or with the path to the current working directory if no `$path` is given. An error is thrown if a file already exists at the `$path`. A path beginning with the `~` character is replaced with the value of the `%*ENV<HOME\>` environment variable.
+Creates a new Directory object from the `$path` supplied or with the path to the current working directory if no `$path` is given. An error is thrown if a file already exists at the `$path`. A path beginning with the `~` character is replaced with the value of the `$*HOME`> variable.
 
 METHODS
 =======
@@ -48,6 +49,11 @@ exists
 ------
 
 Returns a boolean value of `True` if the directory exists, `False` otherwise.
+
+is-empty
+--------
+
+Returns a boolean value of `True` if the directory is empty, `False` otherwise.
 
 read
 ----
