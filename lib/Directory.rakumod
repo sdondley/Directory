@@ -21,12 +21,15 @@ class Directory is IO::Dir {
         return True;
     }
 
-    method exists() { $!path.e; }
+    # File::Tree::Directory wrappers
     method mktree(Int:D $mask = 0o777) { mktree($!path, :$mask); }
-    method create(Int:D $mask = 0o777) { self.mktree(:$mask) }
     method rmtree() { rmtree($!path); }
     method empty-directory() { empty-directory($!path); }
+    method create(Int:D $mask = 0o777) { self.mktree(:$mask) }
 
+    method exists() { $!path.e; }
+
+    # custom methods
     method is-empty() {
         self.open: $.path;
         my $empty = !self.dir;
@@ -42,6 +45,7 @@ class Directory is IO::Dir {
         return @entries;
     }
 
+    # object construction
     method new(Str:D $path?) {
         $path ?? self.bless(path => $path>IO) !! self.bless(path => $*CWD);
     }
