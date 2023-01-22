@@ -1,47 +1,53 @@
 use IO::Dir;
 use File::Directory::Tree;
 class X::Directory::FileExists is Exception {
-    has IO::Path $.path;
+    has IO::Path $!dirpath;
     method message() {
-        "Cannot create a Directory object. A file already exists at '" ~ $!path.Str ~ "'.";
+        "Cannot create a Directory object. A file already exists at '" ~ $!dirpath.Str ~ "'.";
     }
 }
 
 class X::Directory::NoHome is Exception {
-    has IO::Path $.path;
     method message() {
         "The '~' was used in the path but \$*HOME variable is not set.";
     }
 }
 
-class Directory is IO::Dir {
-    has IO::Path $.path is required where dir-check($_);
+class Directory {
+    has IO::Path $!dirpath is required where dir-check($_);
+    has IO::Dir $!iodir is required;
     sub dir-check(IO::Path:D $path is copy) {
         die (X::Directory::FileExists.new(:$path)) if $path.f.Bool;
         return True;
     }
 
+    # IO::Dir methods
+    method open() { $!iodir.open: $!dirpath; }
+    method dir() { $!iodir.dir; }
+    method close() { $!iodir.close; }
+
     # File::Tree::Directory wrappers
-    method mktree(Int:D $mask = 0o777) { mktree($!path, :$mask); }
-    method rmtree() { rmtree($!path); }
-    method empty-directory() { empty-directory($!path); }
+    method mktree(Int:D $mask = 0o777) { mktree($!dirpath, :$mask); }
+    method rmtree() { rmtree($!dirpath); }
+    method empty-directory() { empty-directory($!dirpath); }
     method create(Int:D $mask = 0o777) { self.mktree(:$mask) }
 
-    method exists() { $!path.e; }
-
     # custom methods
+    method exists() { $!dirpath.e; }
+    multi method path() { $!dirpath; }
+
     method is-empty() {
-        self.open: $.path;
+        $!iodir.open: $!dirpath;
         my $empty = !self.dir;
-        self.close;
+        $!iodir.close;
         return $empty;
     }
 
     method list() {
         my @entries;
-        self.open: $.path;
+        $!iodir.open: $!dirpath;
         @entries.push: self.dir(:Str).Slip;
-        self.close;
+        $!iodir.close;
         return @entries;
     }
 
@@ -56,7 +62,8 @@ class Directory is IO::Dir {
             my $home = $*HOME;
             $path = $path.Str.subst('~', $home).IO;
         }
-        $!path = $path;
+        $!dirpath = $path;
+        $!iodir = IO::Dir.new;
     }
 }
 
@@ -94,8 +101,8 @@ $dir.close;
 
 =head1 DESCRIPTION
 
-A Directory object is a subclass of an IO::Dir object and also wraps
-the subroutines found in the File::Tree::Directory distribution with methods.
+A Directory object wraps an IO::Dir object as well as the
+the subroutines found in the File::Tree::Directory distribution.
 The module aims to make working with directories simpler. The primary motivation
 was for type constraining class attributes representing directories.
 

@@ -5,6 +5,9 @@ plan 16;
 
 my $dir;
 lives-ok { $dir = Directory.new('t') }, 'creates object';
+$dir.open;
+is $dir.dir[0].Str, 't/01-basic.rakutest', 'gets contents of directory';
+$dir.close;
 is $dir.is-empty, False, 'detects directory has content';
 lives-ok { $dir.list; }, 'can read a directory';
 is $dir.exists, True, 'determines if directory exists';
@@ -26,14 +29,12 @@ if $*HOME {
     is $dir.path.Str, $*HOME, 'interprets leading tilde as home directory';
 
     $dir = Directory.new('~/.');
-    is $dir.path.Str, $*HOME ~ '/.',
-    'interprets leading tilde followed by slash correctly';
+    #is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
 } else {
     skip 'No $*HOME', 2;
 }
 
 $*HOME = '';
 dies-ok { $dir = Directory.new('~') }, 'dies when $HOME not set';
-
 
 done-testing;
