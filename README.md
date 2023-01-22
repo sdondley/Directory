@@ -26,14 +26,14 @@ my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
 my $dir = Directory.new('/some/dir').open;
-$dir.dir;
+my $sequence = $dir.dir;
 $dir.close;
 ```
 
 DESCRIPTION
 ===========
 
-A Directory object wraps an IO::Dir object as well as the the subroutines found in the File::Tree::Directory distribution. The module aims to make working with directories simpler. The primary motivation was for type constraining class attributes representing directories.
+A Directory object wraps an [IO::Dir](https://raku.land/zef:raku-community-modules/IO::Dir) object as well as the the subroutines found in the [File::Directory::Tree](https://raku.land/github:labster/File::Directory::Tree) distribution. The module aims to make working with directories simpler. The primary motivation was for type constraining class attributes representing directories.
 
 CONSTRUCTION
 ============
@@ -41,7 +41,7 @@ CONSTRUCTION
 new(Str:D $path?)
 -----------------
 
-Creates a new Directory object from the `$path` supplied or with the path to the current working directory if no `$path` is given. An error is thrown if a file already exists at the `$path`. A path beginning with the `~` character is replaced with the value of the `$*HOME`> variable.
+Creates a new Directory object from the `$path` supplied or with the path to the current working directory if no `$path` is given. An error is thrown if a file already exists at the `$path`. A path beginning with the `~` character is replaced with the value of the `$*HOME`> variable, if it contains a value.
 
 METHODS
 =======
@@ -57,9 +57,9 @@ Returns a boolean value of `True` if the directory exists, `False` otherwise.
 
 Returns a boolean value of `True` if the directory is empty, `False` otherwise.
 
-### list
+### list(:Str, :absolute)
 
-Returns an array of strings for each file and directory in the Directory object's path.
+Returns an array of `IO::Path`s for each file and directory in the Directory object's path. Pass `:Str` to return strings instead and `:absolute` to return absolute paths.
 
 ### path
 
@@ -70,11 +70,13 @@ Returns the IO::Path object for the Directory object.
 
 ### open
 
-Opens the Directory object with the `open` method from `IO::Dir`
+Opens the Directory object with the `open` method from `IO::Dir`. Unlike with the `IO::Dir.open`, no path is passed to the method.
 
-### dir
+### dir(:Str, :absolute)
 
-Runs the `dir` method from `IO::Dir`, returning a sequence of IO paths for files and directories contained by the Directory object. The Directory object must be opened before running this method.
+Runs the `dir` method from `IO::Dir`, returning a sequence of IO paths for files and directories contained by the Directory object. Pass `:Str` to return strings instead and `:absolute` to return absolute paths.
+
+The Directory object must be opened with the `open` method before running this method.
 
 ### close
 

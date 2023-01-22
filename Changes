@@ -2,6 +2,12 @@ Revision history for Directory
 
 {{$NEXT}}
 
+0.0.5  2023-01-22T12:01:01-05:00
+    - improve test quality
+    - add gist method
+    - various code improvements
+    - documentation improvements
+
 0.0.4  2023-01-21T22:17:30-05:00
     - minor code and doc improvements
     - change read method name to list
