@@ -1,7 +1,7 @@
 use Test;
 use Directory;
 
-plan 18;
+plan 19;
 
 my $dir;
 lives-ok { $dir = Directory.new('t') }, 'creates object';
@@ -10,6 +10,7 @@ my $sep = $*DISTRO.is-win
         ?? IO::Spec::Win32.dir-sep
         !! IO::Spec::Unix.dir-sep;
 is $dir.dir[0].Str, 't' ~ $sep ~ '01-basic.rakutest', 'gets contents of directory';
+is 'IO::Path', $dir.path.^name, 'path returns IO::Path object';
 $dir.close;
 is $dir.is-empty, False, 'detects directory has content';
 my $list;
