@@ -4,6 +4,9 @@ use Directory;
 plan 19;
 
 my $dir;
+lives-ok { $dir = Directory.new() }, 'creates object for current dir';
+is True, $dir.list.Bool, 'gets array of paths';
+say $dir.list;
 lives-ok { $dir = Directory.new('t') }, 'creates object';
 $dir.open;
 my $sep = $*DISTRO.is-win

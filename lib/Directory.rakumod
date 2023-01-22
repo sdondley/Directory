@@ -31,6 +31,7 @@ class Directory {
     method list(Bool :$Str, Bool :$absolute, *%_ ()) {
         my @entries;
         $!iodir.open: $!dirpath;
+        say $absolute;
         @entries.push: self.dir(:$Str, :$absolute).Slip;
         $!iodir.close;
         return @entries;
@@ -55,8 +56,8 @@ class Directory {
     }
 
     # object construction
-    method new(Str:D $path?) {
-        $path ?? self.bless(path => $path.IO) !! self.bless(path => $*CWD);
+    method new(Str $path?) {
+        $path ?? self.bless(path => $path.IO) !! self.bless(path => '.');
     }
 
     submethod BUILD(:$path is copy) {
