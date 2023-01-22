@@ -3,13 +3,12 @@ use File::Directory::Tree;
 
 class Directory {
     has IO::Path $!dirpath is required where dir-check($_);
-    has IO::Dir $!iodir is required handles('dir', 'close');
+    has IO::Dir $!iodir handles('dir', 'close') = IO::Dir.new;
     sub dir-check(IO::Path:D $path is copy) {
-        die (X::Directory::FileExists.new(:$path)) if $path.f.Bool;
-        return True;
+        die (X::Directory::FileExists.new(:$path)) if $path.f.Bool || return True;
     }
 
-    # IO::Dir methods
+    # IO::Dir method
     method open() { $!iodir.open: $!dirpath; }
 
     # File::Tree::Directory wrappers
@@ -20,21 +19,39 @@ class Directory {
 
     # custom methods
     method exists() { $!dirpath.e; }
-    multi method path() { $!dirpath; }
+    method path() { $!dirpath; }
 
     method is-empty() {
         $!iodir.open: $!dirpath;
-        my $empty = !self.dir;
+        my $count = self.dir.elems;
         $!iodir.close;
-        return $empty;
+        return $count ?? False !! True;
     }
 
-    method list() {
+    method list(Bool :$Str, Bool :$absolute, *%_ ()) {
         my @entries;
         $!iodir.open: $!dirpath;
-        @entries.push: self.dir(:Str).Slip;
+        @entries.push: self.dir(:$Str, :$absolute).Slip;
         $!iodir.close;
         return @entries;
+    }
+
+    method gist() {
+        my $out ~= "Directory: " ~ $!dirpath.absolute;
+         when !self.exists {
+             $out ~= "\nDoes not exist\n\n";
+        }
+        $!iodir.open: $!dirpath;
+        my $dircnt = 0;
+        my $filecnt = 0;
+        for self.dir(:absolute).list -> $entry {
+            $dircnt++ if $entry.d;
+            $filecnt++ if $entry.f;
+        }
+        $!iodir.close;
+        my $subdir = $dircnt != 1 ?? 'subdirectories' !! 'subdirectory';
+        my $file = $filecnt != 1 ?? 'files' !! 'file';
+        $out ~= "\nContains: $dircnt $subdir, $filecnt $file\n\n";
     }
 
     # object construction
@@ -45,11 +62,9 @@ class Directory {
     submethod BUILD(:$path is copy) {
         if ($path.Str eq '~' || $path.Str.substr(0, 2) eq '~/') {
             die (X::Directory::NoHome.new(:$path)) if !$*HOME;
-            my $home = $*HOME;
-            $path = $path.Str.subst('~', $home).IO;
+            $path = $path.subst('~', $*HOME).IO;
         }
-        $!dirpath = $path;
-        $!iodir = IO::Dir.new;
+        $!dirpath = IO::Path.new($path);
     }
 }
 
@@ -93,7 +108,7 @@ my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
 my $dir = Directory.new('/some/dir').open;
-$dir.dir;
+my $sequence = $dir.dir;
 $dir.close;
 
 =end code
@@ -112,7 +127,7 @@ was for type constraining class attributes representing directories.
 Creates a new Directory object from the C<$path> supplied or with the path to the
 current working directory if no C<$path> is given.  An error is thrown
 if a file already exists at the C<$path>. A path beginning with the C<~> character
-is replaced with the value of the C<$*HOME>> variable.
+is replaced with the value of the C<$*HOME>> variable, if it contains a value.
 
 =head1 METHODS
 
@@ -126,10 +141,11 @@ Returns a boolean value of C<True> if the directory exists, C<False> otherwise.
 
 Returns a boolean value of C<True> if the directory is empty, C<False> otherwise.
 
-=head3 list
+=head3 list(:Str, :absolute)
 
-Returns an array of strings for each file and directory in the
-Directory object's path.
+Returns an array of C<IO::Path>s for each file and directory in the
+Directory object's path. Pass C<:Str> to return strings instead and
+C<:absolute> to return absolute paths.
 
 =head3 path
 
@@ -139,13 +155,16 @@ Returns the IO::Path object for the Directory object.
 
 =head3 open
 
-Opens the Directory object with the C<open> method from C<IO::Dir>
+Opens the Directory object with the C<open> method from C<IO::Dir>. Unlike with
+the C<IO::Dir.open>, no path is passed to the method.
 
-=head3 dir
+=head3 dir(:Str, :absolute)
 
 Runs the C<dir> method from C<IO::Dir>, returning a sequence of IO paths for
-files and directories contained by the Directory object. The Directory object must
-be opened before running this method.
+files and directories contained by the Directory object. Pass C<:Str> to return
+strings instead and C<:absolute> to return absolute paths.
+
+The Directory object must be opened with the C<open> method before running this method.
 
 =head3 close
 
