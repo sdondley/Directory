@@ -1,15 +1,20 @@
 use Test;
 use Directory;
 
-plan 16;
+plan 18;
 
 my $dir;
 lives-ok { $dir = Directory.new('t') }, 'creates object';
 $dir.open;
-is $dir.dir[0].Str, 't/01-basic.rakutest', 'gets contents of directory';
+my $sep = $*DISTRO.is-win
+        ?? IO::Spec::Win32.dir-sep
+        !! IO::Spec::Unix.dir-sep;
+is $dir.dir[0].Str, 't' ~ $sep ~ '01-basic.rakutest', 'gets contents of directory';
 $dir.close;
 is $dir.is-empty, False, 'detects directory has content';
-lives-ok { $dir.list; }, 'can read a directory';
+my $list;
+lives-ok { $list = $dir.list(:Str); }, 'can read a directory with "Str" arg';
+lives-ok { $list = $dir.list(:absolute); }, 'can read a directory with "absolute" arg';
 is $dir.exists, True, 'determines if directory exists';
 $dir = Directory.new('kjkjekjad');
 is $dir.exists, False, 'determined if directory does not exist';
@@ -29,7 +34,7 @@ if $*HOME {
     is $dir.path.Str, $*HOME, 'interprets leading tilde as home directory';
 
     $dir = Directory.new('~/.');
-    #is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
+    is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
 } else {
     skip 'No $*HOME', 2;
 }
