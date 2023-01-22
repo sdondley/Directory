@@ -12,27 +12,28 @@ SYNOPSIS
 use Directory;
 
 # OBJECT CONSTRUCTION
-my $dir = Directory.new('/home/user/dir');
+my $dir = Directory.new('/some/dir'); # relative paths OK, too
 my $dir = Directory.new('~');
 my $dir = Directory.new();   # current working directory, '.'
 
 # METHODS
 my $bool = Directory.new('/some/dir').exists;
 my $bool = Directory.new('/some/dir').is-empty;
-my @entries = Directory.new('/some/dir').read;
+my @entries = Directory.new('/some/dir').list;
 my $bool = Directory.new('/some/dir').mktree;
 my $bool = Directory.new('/some/dir').create;
 my $bool = Directory.new('/some/dir').rmtree;
 my $bool = Directory.new('/some/dir').empty-directory;
 my $path = Directory.new('/some/dir').path;
-Directory.new('/some/dir').open;
-Directory.new('/some/dir').open.close;
+my $dir = Directory.new('/some/dir').open;
+$dir.dir;
+$dir.close;
 ```
 
 DESCRIPTION
 ===========
 
-A Directory object is a subclass of an IO::Dir object and also wraps the subroutines found in the File::Tree::Directory distribution with methods. The module aims to make working with directories very simple.
+A Directory object wraps an IO::Dir object as well as the the subroutines found in the File::Tree::Directory distribution. The module aims to make working with directories simpler. The primary motivation was for type constraining class attributes representing directories.
 
 CONSTRUCTION
 ============
@@ -45,53 +46,56 @@ Creates a new Directory object from the `$path` supplied or with the path to the
 METHODS
 =======
 
-exists
-------
+Built-in methods
+----------------
+
+### exists
 
 Returns a boolean value of `True` if the directory exists, `False` otherwise.
 
-is-empty
---------
+### is-empty
 
 Returns a boolean value of `True` if the directory is empty, `False` otherwise.
 
-read
-----
+### list
 
 Returns an array of strings for each file and directory in the Directory object's path.
 
-path
-----
+### path
 
 Returns the IO::Path object for the Directory object.
 
-open
-----
+`IO::Dir` methods
+-----------------
+
+### open
 
 Opens the Directory object with the `open` method from `IO::Dir`
 
-close
------
+### dir
+
+Runs the `dir` method from `IO::Dir`, returning a sequence of IO paths for files and directories contained by the Directory object. The Directory object must be opened before running this method.
+
+### close
 
 Closes the Directory object with the `close` method from `IO::Dir`
 
-mktree($mask = 0o777)
----------------------
+`File::Directory::Tree Wrapper` methods
+---------------------------------------
+
+### mktree($mask = 0o777)
 
 A wrapper for the [File::Directory::Tree](File::Directory::Tree)'s mktree command.
 
-create($mask = 0o777)
----------------------
+### create($mask = 0o777)
 
 Synonym for `mktree` method.
 
-rmtree
-------
+### rmtree
 
 A wrapper for the [File::Directory::Tree](File::Directory::Tree)'s rmtree command.
 
-empty-directory
----------------
+### empty-directory
 
 A wrapper for the [File::Directory::Tree](File::Directory::Tree)'s empty-directory command.
 

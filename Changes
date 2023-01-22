@@ -2,6 +2,10 @@ Revision history for Directory
 
 {{$NEXT}}
 
+0.0.4  2023-01-21T22:17:30-05:00
+    - minor code and doc improvements
+    - change read method name to list
+
 0.0.3  2023-01-21T12:56:24-05:00
     - add is-empty method
     - detect home dir on Windows
