@@ -1,21 +1,9 @@
 use IO::Dir;
 use File::Directory::Tree;
-class X::Directory::FileExists is Exception {
-    has IO::Path $!dirpath;
-    method message() {
-        "Cannot create a Directory object. A file already exists at '" ~ $!dirpath.Str ~ "'.";
-    }
-}
-
-class X::Directory::NoHome is Exception {
-    method message() {
-        "The '~' was used in the path but \$*HOME variable is not set.";
-    }
-}
 
 class Directory {
     has IO::Path $!dirpath is required where dir-check($_);
-    has IO::Dir $!iodir is required;
+    has IO::Dir $!iodir is required handles('dir', 'close');
     sub dir-check(IO::Path:D $path is copy) {
         die (X::Directory::FileExists.new(:$path)) if $path.f.Bool;
         return True;
@@ -23,8 +11,6 @@ class Directory {
 
     # IO::Dir methods
     method open() { $!iodir.open: $!dirpath; }
-    method dir() { $!iodir.dir; }
-    method close() { $!iodir.close; }
 
     # File::Tree::Directory wrappers
     method mktree(Int:D $mask = 0o777) { mktree($!dirpath, :$mask); }
@@ -64,6 +50,19 @@ class Directory {
         }
         $!dirpath = $path;
         $!iodir = IO::Dir.new;
+    }
+}
+
+class X::Directory::FileExists is Exception {
+    has IO::Path $!dirpath;
+    method message() {
+        "Cannot create a Directory object. A file already exists at '" ~ $!dirpath.Str ~ "'.";
+    }
+}
+
+class X::Directory::NoHome is Exception {
+    method message() {
+        "The '~' was used in the path but \$*HOME variable is not set.";
     }
 }
 
