@@ -1,6 +1,7 @@
 Revision history for Directory
 
 {{$NEXT}}
+    - remove debug code
 
 0.0.6  2023-01-22T14:05:52-05:00
     - get new() with no path working properly

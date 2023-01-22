@@ -31,7 +31,6 @@ class Directory {
     method list(Bool :$Str, Bool :$absolute, *%_ ()) {
         my @entries;
         $!iodir.open: $!dirpath;
-        say $absolute;
         @entries.push: self.dir(:$Str, :$absolute).Slip;
         $!iodir.close;
         return @entries;
