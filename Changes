@@ -1,6 +1,8 @@
 Revision history for Directory
 
 {{$NEXT}}
+
+0.0.6  2023-01-22T14:05:52-05:00
     - get new() with no path working properly
 
 0.0.5  2023-01-22T12:01:01-05:00

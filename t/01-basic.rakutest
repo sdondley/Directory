@@ -1,7 +1,7 @@
 use Test;
 use Directory;
 
-plan 19;
+plan 21;
 
 my $dir;
 lives-ok { $dir = Directory.new() }, 'creates object for current dir';
