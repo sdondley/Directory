@@ -115,8 +115,8 @@ $dir.close;
 
 =head1 DESCRIPTION
 
-A Directory object wraps an IO::Dir object as well as the
-the subroutines found in the File::Tree::Directory distribution.
+A Directory object wraps an L<IO::Dir|https://raku.land/zef:raku-community-modules/IO::Dir>
+object as well as the the subroutines found in the L<File::Directory::Tree|https://raku.land/github:labster/File::Directory::Tree> distribution.
 The module aims to make working with directories simpler. The primary motivation
 was for type constraining class attributes representing directories.
 
