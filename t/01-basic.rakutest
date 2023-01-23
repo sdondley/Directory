@@ -10,16 +10,17 @@ use Directory;
 my $dir;
 lives-ok { $dir = Directory.new() }, '.new() works';
 
-is $dir.Str, 'Directory: . 6 files 5 directories',
+# Note that .precomp is created in CWD in github testing.
+like $dir.Str, / 'Directory: . ' \d+ ' files ' \d+ ' directories'/,
     'have: ' ~ $dir.Str.raku;
-
 
 # Why not test the list contents?
 # More idiomatic to use .so? .Bool has the feel of casting.
 # or even .elems = 11?
 is True, $dir.list.Bool, 'gets array of paths';
 
-is  $dir.list.sort,
+# Note that .precomp is created in CWD in github testing.
+is  $dir.list.grep({$_ ne '.precomp'}).sort,
     ("README.md", "dist.ini", ".github", ".gitignore", "xt", ".git", "Changes", "LICENSE", "lib", "META6.json", "t").sort,
     ".list has 11 entries - " ~ $dir.Str;
 
