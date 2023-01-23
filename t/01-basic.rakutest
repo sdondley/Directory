@@ -19,8 +19,8 @@ is $dir.Str, 'Directory: . 6 files 5 directories',
 # or even .elems = 11?
 is True, $dir.list.Bool, 'gets array of paths';
 
-is  $dir.list,
-    ("README.md", "dist.ini", ".github", ".gitignore", "xt", ".git", "Changes", "LICENSE", "lib", "META6.json", "t"),
+is  $dir.list.sort,
+    ("README.md", "dist.ini", ".github", ".gitignore", "xt", ".git", "Changes", "LICENSE", "lib", "META6.json", "t").sort,
     ".list has 11 entries - " ~ $dir.Str;
 
 lives-ok { $dir = Directory.new('t') }, '.new: ./t';
