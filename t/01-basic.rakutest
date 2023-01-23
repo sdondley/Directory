@@ -1,48 +1,101 @@
 use Test;
+
+plan 29;
+
+# a sanity test
+use-ok('Directory');
+
 use Directory;
 
-plan 21;
-
 my $dir;
-lives-ok { $dir = Directory.new() }, 'creates object for current dir';
+lives-ok { $dir = Directory.new() }, '.new() works';
+
+is $dir.Str, 'Directory: . 6 files 5 directories',
+    'have: ' ~ $dir.Str.raku;
+
+
+# Why not test the list contents?
+# More idiomatic to use .so? .Bool has the feel of casting.
+# or even .elems = 11?
 is True, $dir.list.Bool, 'gets array of paths';
-lives-ok { $dir = Directory.new('t') }, 'creates object';
-$dir.open;
+
+is  $dir.list,
+    ("README.md", "dist.ini", ".github", ".gitignore", "xt", ".git", "Changes", "LICENSE", "lib", "META6.json", "t"),
+    ".list has 11 entries - " ~ $dir.Str;
+
+lives-ok { $dir = Directory.new('t') }, '.new: ./t';
+
+# Unexpected - I expected True or False
+isa-ok $dir.open, IO::Dir, '.open for ./t is IO::Dir';
+
+# This has a platform-specific code-smell?
+# Why not use an IO::Path to calculate this
+# e.g. my $file = 't/01-basic.rakutest'.IO.Str
 my $sep = $*DISTRO.is-win
         ?? IO::Spec::Win32.dir-sep
         !! IO::Spec::Unix.dir-sep;
 is $dir.dir[0].Str, 't' ~ $sep ~ '01-basic.rakutest', 'gets contents of directory';
-is 'IO::Path', $dir.path.^name, 'path returns IO::Path object';
-$dir.close;
-is $dir.is-empty, False, 'detects directory has content';
+is 'IO::Path', $dir.path.^name, '.path returns IO::Path object';
+
+# Unexpected - I expected True or False
+isa-ok $dir.close, IO::Dir, '.close ./t returns IO::Dir';
+is $dir.is-empty, False, './t has content';
+
 my $list;
-lives-ok { $list = $dir.list(:Str); }, 'can read a directory with "Str" arg';
-lives-ok { $list = $dir.list(:absolute); }, 'can read a directory with "absolute" arg';
-is $dir.exists, True, 'determines if directory exists';
+lives-ok { $list = $dir.list(:Str); }, 'can list(:Str)';
+is  all( $list.map({$_.^name eq 'Str'}) ).so,
+    True,
+    '.list(:Str) returns list-of-Str ' ~ $list.elems;
+
+lives-ok { $list = $dir.list(:absolute); }, 'can list(:absolute)';
+is  all( $list.map(*.is-absolute) ).so,
+    True,
+    '.list(:absolute) returns list-of-absolute ' ~ $list.elems;
+
+# $dir.gist is unexpected - I added .Str as an example...
+is $dir.exists, True, $dir.Str ~ ' - exists';
 $dir = Directory.new('kjkjekjad');
-is $dir.exists, False, 'determined if directory does not exist';
+
+is $dir.exists, False, $dir.Str ~ ' - does not exist';
 dies-ok { Directory.new('t/01-basic.rakutest') }, 'dies when file exists';
 
+# As the tests have the potential to change the filesystem,
+# maybe to look at: https://github.com/skaji/mi6/blob/main/xt/01-actual.rakutest
+# App::Mi6 uses `tmpdir` to make changes to the filesystem that are
+# automatically unwound even if the test fails.
+
 $dir = Directory.new('t/test-dir');
-is $dir.mktree, True, 'creates directory';
-is $dir.is-empty, True, 'detects empty directory';
-is $dir.create, True, 'creates directory';
-is $dir.exists, True, 'detects that directory exists';
-is $dir.empty-directory, True, 'can empty a directory';
-is $dir.rmtree, True, 'deletes directory';
-is $dir.exists, False, 'detects deleted directory';
+is $dir.mktree, True, '.mktree t/test-dir';
+is $dir.is-empty, True, 't/test-dir is empty';
+
+'t/test-dir/blah.txt'.IO.spurt('tadah');
+is $dir.is-empty, False, 't/test-dir has contents';
+
+# This set of tests seems odd? Not sure why they are duplicated?
+# Unexpected - shouldn't .create barf if it exists?
+# Feels like a dangerous clobber
+is $dir.create, True, 'create t/test-dir';
+is $dir.exists, True, 't/test-dir exists';
+#is $dir.is-empty, True, 't/test-dir is empty'; # fails because of spurt above
+
+# Does this test? afaik there is no content anyway
+# - maybe a 't/test-dir/blah.txt'.IO.spurt('tadah');
+is $dir.empty-directory, True, 't/test-dir is empty';
+is $dir.rmtree, True, 'rmtree t/test-dir';
+is $dir.exists, False, 't/test-dir no longer exists';
 
 $dir = Directory.new('~');
 if $*HOME {
-    is $dir.path.Str, $*HOME, 'interprets leading tilde as home directory';
+    is $dir.path.Str, $*HOME, "~ becomes $*HOME";
 
     $dir = Directory.new('~/.');
-    is $dir.path.Str, $*HOME ~ '/.', 'interprets leading tilde followed by slash correctly';
+    is $dir.path.Str, $*HOME ~ '/.', "~/. becomes $*HOME/.";
 } else {
     skip 'No $*HOME', 2;
 }
 
+# local?
 $*HOME = '';
-dies-ok { $dir = Directory.new('~') }, 'dies when $HOME not set';
+dies-ok { $dir = Directory.new('~') }, '~ dies when no $HOME';
 
 done-testing;

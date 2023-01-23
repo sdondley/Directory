@@ -8,6 +8,9 @@ class Directory {
         die (X::Directory::FileExists.new(:$path)) if $path.f.Bool || return True;
     }
 
+    has Int $!dir-count;
+    has Int $!file-count;
+
     # IO::Dir method
     method open() { $!iodir.open: $!dirpath; }
 
@@ -52,6 +55,64 @@ class Directory {
         my $subdir = $dircnt != 1 ?? 'subdirectories' !! 'subdirectory';
         my $file = $filecnt != 1 ?? 'files' !! 'file';
         $out ~= "\nContains: $dircnt $subdir, $filecnt $file\n\n";
+    }
+
+    #| Trivial pluralisation.
+    #| 1, 'file'                      --> "1 file"
+    #| 2, 'file'                      --> "2 files"
+    #| 3, 'directory', 'directories'  --> "3 directories"
+    #| 1, 'directory', 'directories'  --> "1 directory"
+    #| 0, 'directory', 'directories'  --> "0 directories"
+    sub _plural ( $count, $descr, $plural = '' --> Str ) {
+        $count
+            ~ ' '
+            ~ (    $count == 1 ?? $descr
+                !! $plural     ?? $plural
+                !! $descr ~ 's' );
+    }
+
+    # Alternate to .gist (usually a short one-line Str)
+    method Str ( --> Str ) {
+        my @str = "Directory:", $!dirpath.Str;
+        if self.exists {
+            @str.append( _plural( self.file-count, 'file') )
+                if self.file-count > 0;
+            @str.append( _plural( self.dir-count, 'directory', 'directories' ) )
+                if self.dir-count > 0;
+        }
+        else {
+            @str.append('(non-existant)');
+        }
+        @str.join(' ');
+    }
+
+    #| only count content entries once
+    method count-content ( --> Int ) {
+        unless $!dir-count.defined {
+            $!dir-count = 0;
+            $!file-count = 0;
+            $!iodir.open: $!dirpath;
+            for self.dir(:absolute).list -> $entry {
+                given $entry {
+                    when .d { $!dir-count++ }
+                    when .f { $!file-count++ }
+                }
+            }
+            $!iodir.close;
+        }
+        $!dir-count + $!file-count;
+    }
+
+    #| number of directories
+    method dir-count ( --> Int ) {
+        self.count-content unless $!dir-count.defined;
+        $!dir-count;
+    }
+
+    #| number of files
+    method file-count ( --> Int ) {
+        self.count-content unless $!file-count.defined;
+        $!file-count;
     }
 
     # object construction
