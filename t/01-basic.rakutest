@@ -99,3 +99,4 @@ $*HOME = '';
 dies-ok { $dir = Directory.new('~') }, '~ dies when no $HOME';
 
 done-testing;
+
