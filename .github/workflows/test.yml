@@ -48,4 +48,4 @@ jobs:
       - name: Install App::Prove6
         run: zef install --verbose --/test App::Prove6
       - name: Run Tests
-         run: raku -I.,lib t/01-basic.rakutest
+        run: raku -I.,lib t/01-basic.rakutest
