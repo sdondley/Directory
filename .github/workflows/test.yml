@@ -14,10 +14,14 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
+            raku-version:
+              - 'latest'
           - macos-latest
+            raku-version:
+              - 'latest'
           - windows-latest
-        raku-version:
-          - 'latest'
+            raku-version:
+              - '2022.07'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
