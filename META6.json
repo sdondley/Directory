@@ -1,30 +1,27 @@
 {
-  "auth": "zef:sdondley",
+  "name": "Directory",
+  "description": "an object representing a directory",
+  "version": "0.0.7",
+  "perl": "6.d",
   "authors": [
     "Steve Dondley"
   ],
-  "build-depends": [
-  ],
+  "auth": "zef:sdondley",
   "depends": [
     "IO::Dir",
     "File::Directory::Tree"
   ],
-  "description": "an object representing a directory",
-  "license": "Artistic-2.0",
-  "name": "Directory",
-  "perl": "6.d",
+  "build-depends": [],
+  "test-depends": [],
   "provides": {
     "Directory": "lib/Directory.rakumod"
   },
-  "resources": [
-  ],
-  "source-url": "https://github.com/sdondley/Directory.git",
+  "resources": [],
+  "license": "Artistic-2.0",
   "tags": [
     "IO",
     "filesystem",
     "OO"
   ],
-  "test-depends": [
-  ],
-  "version": "0.0.7"
+  "source-url": "https://github.com/sdondley/Directory.git"
 }
