@@ -1,0 +1,58 @@
+use Test;
+use Directory;
+use File::Temp;
+
+plan 18;
+
+my $tmp = tempdir;
+
+my $dir = Directory.new("$tmp/test-dir");
+is $dir.mktree, True, '.mktree $tmp/test-dir';
+is $dir.is-empty, True, "$tmp/test-dir is empty";
+
+"$tmp/test-dir/blah.txt".IO.spurt('tadah');
+is $dir.is-empty, False, "$tmp/test-dir has contents";
+
+is $dir.create, True, 'create $tmp/test-dir';
+is $dir.exists, True, "$tmp/test-dir exists";
+#is $dir.is-empty, True, "tmp/test-dir is empty'; # fails because of spurt above
+
+# Does this test? afaik there is no content anyway
+# - maybe a $tmp/test-dir/blah.txt'.IO.spurt('tadah');
+is $dir.empty-directory, True, "$tmp/test-dir is empty";
+is $dir.rmtree, True, 'rmtree $tmp/test-dir';
+is $dir.exists, False, "$tmp/test-dir no longer exists";
+
+lives-ok { $dir = Directory.new("$tmp/test-dir/blah") }, '.new: $tmp/test-dir/blah';
+is $dir.create, True, 'recreates $tmp/test-dir/blah';
+
+# Unexpected - I expected True or False
+isa-ok $dir.open, IO::Dir, '.open for $tmp/test-dir is IO::Dir';
+
+# This has a platform-specific code-smell?
+# Why not use an IO::Path to calculate this
+# e.g. my $file = 't/01-basic.rakutest'.IO.Str
+my $sep = $*DISTRO.is-win
+        ?? IO::Spec::Win32.dir-sep
+        !! IO::Spec::Unix.dir-sep;
+my $dirt = Directory.new("$tmp/test-dir");
+$dirt.open;
+is $dirt.dir[0].Str, "$tmp" ~ $sep ~ 'test-dir' ~ $sep ~ 'blah', 'gets contents of directory';
+is 'IO::Path', $dir.path.^name, '.path returns IO::Path object';
+
+
+my $list;
+lives-ok { $list = $dir.list(:Str); }, 'can list(:Str)';
+is  all( $list.map({$_.^name eq 'Str'}) ).so,
+        True,
+        '.list(:Str) returns list-of-Str ' ~ $list.elems;
+
+lives-ok { $list = $dir.list(:absolute); }, 'can list(:absolute)';
+is  all( $list.map(*.is-absolute) ).so,
+        True,
+        '.list(:absolute) returns list-of-absolute ' ~ $list.elems;
+
+# $dir.gist is unexpected - I added .Str as an example...
+is $dir.exists, True, 'dir exists';
+
+done-testing;
