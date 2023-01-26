@@ -5,24 +5,36 @@ class Directory {
     has IO::Path $!dirpath is required where dir-check($_);
     has IO::Dir $!iodir handles('dir', 'close') = IO::Dir.new;
     sub dir-check(IO::Path:D $path is copy) {
-        die (X::Directory::FileExists.new(:$path)) if $path.f.Bool || return True;
+        die (X::Directory::FileExists.new(:$path)) if $path.f
+        .Bool || return True;
     }
 
-    has Int $!dir-count;
-    has Int $!file-count;
-
     # IO::Dir method
-    method open() { $!iodir.open: $!dirpath; }
+    method open() {
+        $!iodir.open: $!dirpath;
+    }
 
     # File::Tree::Directory wrappers
-    method mktree(Int:D $mask = 0o777) { mktree($!dirpath, :$mask); }
-    method rmtree() { rmtree($!dirpath); }
-    method empty-directory() { empty-directory($!dirpath); }
-    method create(Int:D $mask = 0o777) { self.mktree(:$mask) }
+    method mktree(Int:D $mask = 0o777) {
+        mktree($!dirpath, :$mask);
+    }
+    method rmtree() {
+        rmtree($!dirpath);
+    }
+    method empty-directory() {
+        empty-directory($!dirpath);
+    }
+    method create(Int:D $mask = 0o777) {
+        self.mktree(:$mask)
+    }
 
     # custom methods
-    method exists() { $!dirpath.e; }
-    method path() { $!dirpath; }
+    method exists() {
+        $!dirpath.e;
+    }
+    method path() {
+        $!dirpath;
+    }
 
     method is-empty() {
         $!iodir.open: $!dirpath;
@@ -39,8 +51,16 @@ class Directory {
         return @entries;
     }
 
-    method gist() {
-        my $out ~= "Directory: " ~ $!dirpath.absolute;
+    method Str() {
+        self.gist;
+    }
+
+    multi method gist(Directory:U:) {
+        self.^name;
+    }
+
+    multi method gist(Directory:D:) {
+        my $out ~= "Directory: " ~ $!dirpath.absolute ~ ', ';
          when !self.exists {
              $out ~= "\nDoes not exist\n\n";
         }
@@ -52,67 +72,9 @@ class Directory {
             $filecnt++ if $entry.f;
         }
         $!iodir.close;
-        my $subdir = $dircnt != 1 ?? 'subdirectories' !! 'subdirectory';
+        my $subdir = $dircnt != 1 ?? 'directories' !! 'directory';
         my $file = $filecnt != 1 ?? 'files' !! 'file';
-        $out ~= "\nContains: $dircnt $subdir, $filecnt $file\n\n";
-    }
-
-    #| Trivial pluralisation.
-    #| 1, 'file'                      --> "1 file"
-    #| 2, 'file'                      --> "2 files"
-    #| 3, 'directory', 'directories'  --> "3 directories"
-    #| 1, 'directory', 'directories'  --> "1 directory"
-    #| 0, 'directory', 'directories'  --> "0 directories"
-    sub _plural ( $count, $descr, $plural = '' --> Str ) {
-        $count
-            ~ ' '
-            ~ (    $count == 1 ?? $descr
-                !! $plural     ?? $plural
-                !! $descr ~ 's' );
-    }
-
-    # Alternate to .gist (usually a short one-line Str)
-    method Str ( --> Str ) {
-        my @str = "Directory:", $!dirpath.Str;
-        if self.exists {
-            @str.append( _plural( self.file-count, 'file') )
-                if self.file-count > 0;
-            @str.append( _plural( self.dir-count, 'directory', 'directories' ) )
-                if self.dir-count > 0;
-        }
-        else {
-            @str.append('(non-existant)');
-        }
-        @str.join(' ');
-    }
-
-    #| only count content entries once
-    method count-content ( --> Int ) {
-        unless $!dir-count.defined {
-            $!dir-count = 0;
-            $!file-count = 0;
-            $!iodir.open: $!dirpath;
-            for self.dir(:absolute).list -> $entry {
-                given $entry {
-                    when .d { $!dir-count++ }
-                    when .f { $!file-count++ }
-                }
-            }
-            $!iodir.close;
-        }
-        $!dir-count + $!file-count;
-    }
-
-    #| number of directories
-    method dir-count ( --> Int ) {
-        self.count-content unless $!dir-count.defined;
-        $!dir-count;
-    }
-
-    #| number of files
-    method file-count ( --> Int ) {
-        self.count-content unless $!file-count.defined;
-        $!file-count;
+        $out ~= "contains $dircnt $subdir, $filecnt $file\n";
     }
 
     # object construction

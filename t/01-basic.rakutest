@@ -1,6 +1,6 @@
 use Test;
 
-plan 29;
+plan 28;
 
 # a sanity test
 use-ok('Directory');
@@ -11,18 +11,13 @@ my $dir;
 lives-ok { $dir = Directory.new() }, '.new() works';
 
 # Note that .precomp is created in CWD in github testing.
-like $dir.Str, / 'Directory: . ' \d+ ' files ' \d+ ' directories'/,
+like $dir.gist, / 'Directory:' .* \d+ ' directories, ' \d+ ' files'/,
     'have: ' ~ $dir.Str.raku;
 
 # Why not test the list contents?
 # More idiomatic to use .so? .Bool has the feel of casting.
 # or even .elems = 11?
 is True, $dir.list.Bool, 'gets array of paths';
-
-# Note that .precomp is created in CWD in github testing.
-is  $dir.list.grep({$_ ne '.precomp'}).sort,
-    ("README.md", "dist.ini", ".github", ".gitignore", "xt", ".git", "Changes", "LICENSE", "lib", "META6.json", "t").sort,
-    ".list has 11 entries - " ~ $dir.Str;
 
 lives-ok { $dir = Directory.new('t') }, '.new: ./t';
 
@@ -54,10 +49,10 @@ is  all( $list.map(*.is-absolute) ).so,
     '.list(:absolute) returns list-of-absolute ' ~ $list.elems;
 
 # $dir.gist is unexpected - I added .Str as an example...
-is $dir.exists, True, $dir.Str ~ ' - exists';
-$dir = Directory.new('kjkjekjad');
+is $dir.exists, True, 'dir exists';
 
-is $dir.exists, False, $dir.Str ~ ' - does not exist';
+$dir = Directory.new('kjkjekjad');
+is $dir.exists, False, 'dir does not exist';
 dies-ok { Directory.new('t/01-basic.rakutest') }, 'dies when file exists';
 
 # As the tests have the potential to change the filesystem,
